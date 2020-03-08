@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 // model
 const Chat = require("../../models/Chat");
 const User = require("../../models/User");
@@ -12,8 +14,50 @@ module.exports = io => {
     res.send(io.connectedUsers);
   });
 
+  // GET /api/chat
+  // user chats
+  router.get("/", auth, async (req, res) => {
+    try {
+      const chats = await Chat.aggregate([
+        { $match: { members: ObjectId(req.user._id) } },
+        { $sort: { "messages.date": -1 } },
+        {
+          $project: {
+            name: 1,
+            type: 1,
+            messages: { $slice: ["$messages", -1] }
+          }
+        }
+      ]).then(chat =>
+        chat.map(chat => {
+          return { ...chat, message: chat.messages ? chat.messages[0] : null };
+        })
+      );
+      return res.json(chats);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ msg: "Error" });
+    }
+  });
+
+  // GET /api/chat/id
+  // detail chat
+  router.get("/:id", auth, async (req, res) => {
+    const _id = req.params.id;
+    try {
+      const chat = await Chat.findOne({ _id, members: req.user._id }).populate(
+        "members",
+        "username name"
+      );
+      return res.json(chat);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ msg: "Error" });
+    }
+  });
+
   // POST /api/chat
-  // new room/private chat
+  // new group/private chat
   router.post("/", auth, async (req, res) => {
     const { name, type, userId } = req.body;
     // save group/private
@@ -23,7 +67,8 @@ module.exports = io => {
           name,
           type,
           owner: req.user._id,
-          members: [req.user._id]
+          members: [req.user._id],
+          messages: [{ name: "System", text: `Group "${name}" telah dibuat` }]
         });
         // save
         await newGroup.save();
@@ -49,7 +94,13 @@ module.exports = io => {
         const newGroup = new Chat({
           name: `${req.user.name}__${userTarget.name}`,
           type: "private",
-          members: [req.user._id, userTarget._id]
+          members: [req.user._id, userTarget._id],
+          messages: [
+            {
+              name: "System",
+              text: `${req.user.name}__${userTarget.name}`
+            }
+          ]
         });
         await newGroup.save();
         return res.json(newGroup);
@@ -62,31 +113,36 @@ module.exports = io => {
   // POST /api/chat/invite
   // invite user
   router.post("/invite", auth, async (req, res) => {
-    const { groupId, userId } = req.body;
+    const { groupId, username } = req.body;
     try {
-      // get group, user
-      const group = await Chat.findOne({
+      // get user
+      const user = await User.findOne({ username }).select("name username");
+      if (!user) return res.status(404).json({ msg: "User tidak ditemukan" });
+      // get group
+      let group = await Chat.findOne({
         _id: groupId,
         owner: req.user._id,
-        members: { $ne: userId }
+        members: { $ne: user._id }
       });
       if (!group)
         return res
           .status(400)
           .json({ msg: "Group tidak ditemukan / user sudah bergabung" });
-      const user = await User.findById(userId).select("-contacts");
-      if (!user) return res.status(404).json({ msg: "User tidak ditemukan" });
       // add member
       group.members.push(user._id);
-      group.save();
-      // emit added if user online
+      await group.save();
+      // emit to invited user if online
       const userOnline = io.connectedUsers.filter(cu =>
         user._id.equals(cu.userId)
       )[0];
-      if (userOnline) io.to(userOnline.id).emit("added", { group });
-      return res.json({
-        msg: `"${user.name}" berhasil ditambahkan ke group "${group.name}"`
-      });
+      if (userOnline) io.to(userOnline.id).emit("added", group);
+      // to group
+      io.to(group._id).emit("new_member", user);
+      // return success
+      // return res.json({
+      //   msg: `"${user.name}" ditambahkan ke group "${group.name}"`
+      // });
+      return res.json(user);
     } catch (err) {
       handleError(err, res);
     }

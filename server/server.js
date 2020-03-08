@@ -1,24 +1,20 @@
 const express = require("express");
 const mongoose = require("mongoose");
-require('dotenv').config();
+require("dotenv").config();
 
 // init app
 const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, console.log(`listening on port ${PORT}`));
-// chat
+// socketio
 const io = require("./socket").listen(server);
 
 // test
-app.get("/", (req, res) => {
-  res.send(`
-        <h1>Hello</h1>
-    `);
-});
+app.get("/", (req, res) => res.send(`ok!`));
 
 // database
-const db = process.env.MONGODB_URI || '';
+const db = process.env.MONGODB_URI || "mongodb://localhost/mern-chat";
 mongoose
   .connect(db, {
     useUnifiedTopology: true,
@@ -29,5 +25,5 @@ mongoose
   .catch(err => console.log("db error", err));
 
 // routes
-app.use("/api/users", require("./routes/api/users")());
+app.use("/api/users", require("./routes/api/users"));
 app.use("/api/chat", require("./routes/api/chat")(io));
