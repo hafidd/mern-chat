@@ -4,7 +4,6 @@ import {
   LOGOUT_SUCCESS,
   USER_LOADING,
   USER_LOADED,
-  CONTACTS_LOADED
 } from "../actions/types";
 
 const initialState = {
@@ -25,12 +24,7 @@ export default function(state = initialState, action) {
         ...action.payload,
         isLoading: false,
         isAuthenticated: true
-      };
-    case CONTACTS_LOADED:
-      return {
-        ...state,
-        user: { ...state.user, contacts: action.payload }
-      };
+      };     
     case AUTH_ERROR:
     case LOGOUT_SUCCESS:
       localStorage.removeItem("token");

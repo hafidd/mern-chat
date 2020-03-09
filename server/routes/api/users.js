@@ -83,13 +83,51 @@ router.post("/auth", async (req, res) => {
   }
 });
 
+// get /api/users/contacts
+// get contacts
 router.get("/contacts", auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("contacts");
+    const user = await User.findById(req.user._id)
+      .select("contacts")
+      .populate("contacts", "name username email");
     return res.json(user.contacts);
   } catch (err) {
     return res.status(500).json({ msg: "Error" });
   }
 });
 
+// POST /api/users/contact
+// new contact
+router.post("/contact", auth, async (req, res) => {
+  try {
+    const { username } = req.body;
+    // cek
+    if (username === req.user.username)
+      throw { code: 400, msg: "Tidak dapat menambahkan ke kontak" };
+    // get user
+    const user = await User.findOne({ username }).select("username name email");
+    if (!user) throw { code: 404, msg: "User tidak ditemukan" };
+    // cek exist
+    if (await User.findOne({ _id: req.user._id, contacts: user._id }))
+      throw { code: 400, msg: "Kontak sudah ada" };
+    // update contacts
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { contacts: user._id }
+    });
+    return res.json(user);
+  } catch (err) {
+    if (err.code) return res.status(err.code).json({ msg: err.msg });
+    console.log(err);
+    return res.status(500).json({ msg: "Error" });
+  }
+});
+
 module.exports = router;
+
+(async () => {
+  // User.find().then(data => console.log(data));
+  // User.find((err, data) => {
+  //   console.log(data);
+  // });
+  // console.log(await User.find());
+})();

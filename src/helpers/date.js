@@ -14,7 +14,7 @@ export function formatDate(date) {
     "November",
     "Desember"
   ];
-  return `${d.getDay()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 export function formatTime(date) {

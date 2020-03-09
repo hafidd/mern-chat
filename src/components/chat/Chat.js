@@ -8,7 +8,8 @@ import {
   updateMessages,
   createGroup,
   invite,
-  added
+  added,
+  newMember
 } from "../../actions/chatsActions";
 
 import ChatList from "./ChatList";
@@ -24,6 +25,7 @@ import Contacts from "./modal/Contacts";
 import ChatSettings from "./modal/ChatSettings";
 import Invite from "./modal/Invite";
 import { returnErrors, newErrors } from "../../actions/errorAction";
+import { newContact } from "../../actions/authActions";
 
 export default function Chat({ io }) {
   const [collapse, setCollapse] = useState(true);
@@ -32,23 +34,31 @@ export default function Chat({ io }) {
 
   const chats = useSelector(state => state.chats);
   const activeChat = useSelector(state => state.activeChat);
-  const { token, user } = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth);
   const error = useSelector(state => state.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (io) {
-      // new message
-      io.on("message", message => {
-        console.log("on message");
-        dispatch(updateMessages(message));
-      });
-      // new group
-      io.on("added", group => {
-        console.log("on addd");
-        dispatch(added(group));
-      });
-    }
+    if (io) io.off();
+    // new message
+    io.on("message", message => {
+      dispatch(updateMessages(message));
+    });
+    // new group
+    io.on("added", group => {
+      dispatch(added(group));
+    });
+    // new member
+    io.on("new_member", (user, id) => {
+      dispatch(
+        updateMessages({
+          name: "System",
+          text: `${user.name} (${user.username}) telah bergabung!`,
+          room: activeChat._id
+        })
+      );
+      if (user._id !== id) dispatch(newMember(user));
+    });
   }, [io]);
 
   useEffect(() => {
@@ -71,10 +81,11 @@ export default function Chat({ io }) {
     io.emit(
       "message",
       { from: _id, name, text, room: activeChat._id },
-      ({ err }) => {
+      ({ err, message }) => {
         if (err) {
-          /*handle err */
+          /* error */
         }
+        dispatch(updateMessages(message));
       }
     );
   };
@@ -85,16 +96,7 @@ export default function Chat({ io }) {
     setModal(false);
   };
 
-  const submitNewContact = username => {
-    console.log(username);
-  };
-  const startPrivateMessage = username => {
-    console.log("private message to " + username);
-  };
-  const submitInvite = username => {
-    console.log("invite " + username + " to group " + activeChat.name);
-    dispatch(invite(username, activeChat._id));
-  };
+  const submitInvite = username => dispatch(invite(username, activeChat._id));
 
   return (
     <div className="row p-0" id="chat">
@@ -102,11 +104,7 @@ export default function Chat({ io }) {
         {modalContent === "newgroup" ? (
           <NewGroup title="Buat group" submitNewGroup={submitNewGroup} />
         ) : modalContent === "contacts" ? (
-          <Contacts
-            title="Kontak"
-            submitNewContact={submitNewContact}
-            startPrivateMessage={startPrivateMessage}
-          />
+          <Contacts title="Kontak" setModal={setModal} />
         ) : modalContent === "chat-settings" ? (
           <ChatSettings title={activeChat.name} showModal={showModal} />
         ) : modalContent === "invite-member" ? (

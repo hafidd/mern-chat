@@ -5,7 +5,7 @@ export default function({ submitInvite }) {
   const [username, setUsername] = useState("");
   // redux
   const error = useSelector(state => state.error);
-  const { contacts } = useSelector(state => state.auth.user);
+  const contacts = useSelector(state => state.contacts);
 
   const submit = e => {
     e.preventDefault();

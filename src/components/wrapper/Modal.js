@@ -7,7 +7,7 @@ export default function({ modal, setModal, children }) {
       className="modal"
       tabIndex="-1"
       role="dialog"
-      style={{ display: modal ? "block" : "none" }}
+      style={{ display: modal ? "block" : "none", overflow: "auto" }}
     >
       <div className="modal-dialog" role="document">
         <div className="modal-content">
@@ -22,7 +22,7 @@ export default function({ modal, setModal, children }) {
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div className="modal-body">{children}</div>
+          <div className="modal-body">{children}</div>          
         </div>
       </div>
     </div>

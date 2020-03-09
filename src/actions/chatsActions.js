@@ -52,6 +52,19 @@ export const createGroup = name => dispatch => {
     .catch(err => returnErrors(err, "CREATE_GROUP_ERROR"));
 };
 
+export const privateMessage = userId => dispatch => {
+  dispatch({ type: CHATS_LOADING });
+  axios
+    .post("/api/chat", { type: "private", userId }, headers())
+    .then(res => {
+      if (res.data.new)
+        dispatch({ type: GROUP_CREATED, payload: res.data.chat });
+      dispatch({ type: SET_ACTIVE_CHAT, payload: res.data.chat });
+      dispatch(clearErrors());
+    })
+    .catch(err => dispatch(returnErrors(err, "PM_ERROR")));
+};
+
 export const invite = (username, groupId) => dispatch => {
   axios
     .post("/api/chat/invite", { username, groupId }, headers())
@@ -61,8 +74,11 @@ export const invite = (username, groupId) => dispatch => {
     })
     .catch(err => {
       dispatch(returnErrors(err, "INVITE_ERROR"));
-      //return Promise.reject();
     });
+};
+
+export const newMember = user => dispatch => {
+  dispatch({ type: NEW_MEMBER, payload: user });
 };
 
 //

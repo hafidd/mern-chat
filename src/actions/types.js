@@ -6,6 +6,7 @@ export const USER_LOADED = "USER_LOADED";
 export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
 
 export const CONTACTS_LOADED = "CONTACTS_LOADED";
+export const CONTACTS_UPDATED = "CONTACTS_UPDATED";
 
 // Errors
 export const GET_ERRORS = "GET_ERRORS";

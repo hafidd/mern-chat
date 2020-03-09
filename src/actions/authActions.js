@@ -7,7 +7,8 @@ import {
   AUTH_ERROR,
   CLEAR_CHATS,
   LOGOUT_SUCCESS,
-  CONTACTS_LOADED
+  CONTACTS_LOADED,
+  CONTACTS_UPDATED
 } from "../actions/types";
 import { headers, getUser } from "../helpers/jwt";
 
@@ -70,6 +71,17 @@ export const getContacts = () => dispatch => {
     .get("/api/users/contacts", headers())
     .then(res => dispatch({ type: CONTACTS_LOADED, payload: res.data }))
     .catch(err => returnErrors(err, "CONTACTS_ERROR"));
+};
+
+// new contact
+export const newContact = username => dispatch => {
+  axios
+    .post("/api/users/contact", { username }, headers())
+    .then(res => {
+      dispatch({ type: CONTACTS_UPDATED, payload: res.data });
+      dispatch(clearErrors());
+    })
+    .catch(err => dispatch(returnErrors(err, "ADD_CONTACT_ERR")));
 };
 
 // logout

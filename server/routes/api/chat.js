@@ -89,7 +89,7 @@ module.exports = io => {
           type: "private",
           members: [req.user._id, userTarget._id]
         });
-        if (chat) return res.json(chat);
+        if (chat) return res.json({ chat, new: false });
         // create new room
         const newGroup = new Chat({
           name: `${req.user.name}__${userTarget.name}`,
@@ -98,12 +98,12 @@ module.exports = io => {
           messages: [
             {
               name: "System",
-              text: `${req.user.name}__${userTarget.name}`
+              text: `Percakapan pribadi: ${req.user.name}, ${userTarget.name}`
             }
           ]
         });
         await newGroup.save();
-        return res.json(newGroup);
+        return res.json({ chat: newGroup, new: true });
       } catch (err) {
         return handleError(err, res);
       }
@@ -132,10 +132,12 @@ module.exports = io => {
       group.members.push(user._id);
       await group.save();
       // emit to invited user if online
-      const userOnline = io.connectedUsers.filter(cu =>
-        user._id.equals(cu.userId)
-      )[0];
-      if (userOnline) io.to(userOnline.id).emit("added", group);
+      if (io.connectedUsers[user._id]) {
+        io.connectedUsers[user._id].sockets.forEach(socket => {
+          io.to(socket.id).emit("added", group);
+          socket.join(group._id);
+        });
+      }
       // to group
       io.to(group._id).emit("new_member", user);
       // return success

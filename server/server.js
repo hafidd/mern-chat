@@ -8,7 +8,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, console.log(`listening on port ${PORT}`));
 // socketio
-const io = require("./socket").listen(server);
+const io = require("./socket/socket").listen(server);
 
 // test
 app.get("/", (req, res) => res.send(`ok!`));
@@ -19,7 +19,8 @@ mongoose
   .connect(db, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    useFindAndModify: false
   })
   .then(() => console.log("mongodb connected..."))
   .catch(err => console.log("db error", err));
@@ -27,3 +28,6 @@ mongoose
 // routes
 app.use("/api/users", require("./routes/api/users"));
 app.use("/api/chat", require("./routes/api/chat")(io));
+
+// socket listeners
+require("./socket/chatListeners")(io);

@@ -14,12 +14,12 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import { loadUser } from "./actions/authActions";
 import { useSelector, useDispatch } from "react-redux";
-
-let io;
+import { useState } from "react";
 
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated, token } = useSelector(state => state.auth);
+  const [io, setIo] = useState(null);
 
   useEffect(() => {
     dispatch(loadUser());
@@ -28,7 +28,8 @@ function App() {
   useEffect(() => {
     // connect
     if (token)
-      io = socketio.connect(`http://192.168.43.65:5001?token=${token}`);
+      if(!io) setIo(socketio.connect(`/?token=${token}`));
+    else if (io) io.close();
   }, [token]);
 
   // protected route
