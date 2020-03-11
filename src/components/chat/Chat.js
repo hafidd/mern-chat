@@ -9,12 +9,15 @@ import {
   createGroup,
   invite,
   added,
-  newMember
+  newMember,
+  groupDeleted,
+  memberLeft,
+  memberRemoved,
+  leaveChat
 } from "../../actions/chatsActions";
 
 import ChatList from "./ChatList";
 import UserInfo from "./UserInfo";
-import ChatSearch from "./ChatSearch";
 import ChatInfo from "./ChatInfo";
 import ChatMessages from "./ChatMessages";
 import ChatForm from "./ChatForm";
@@ -24,18 +27,16 @@ import NewGroup from "./modal/NewGroup";
 import Contacts from "./modal/Contacts";
 import ChatSettings from "./modal/ChatSettings";
 import Invite from "./modal/Invite";
-import { returnErrors, newErrors } from "../../actions/errorAction";
-import { newContact } from "../../actions/authActions";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Chat({ io }) {
   const [collapse, setCollapse] = useState(true);
   const [modal, setModal] = useState(false);
   const [modalContent, setModalContent] = useState(null);
 
-  const chats = useSelector(state => state.chats);
   const activeChat = useSelector(state => state.activeChat);
   const { user } = useSelector(state => state.auth);
-  const error = useSelector(state => state.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -57,9 +58,37 @@ export default function Chat({ io }) {
           room: activeChat._id
         })
       );
-      if (user._id !== id) dispatch(newMember(user));
+      dispatch(newMember(user));
     });
-  }, [io]);
+    // memberleft
+    io.on("member_left", user => {
+      dispatch(
+        updateMessages({
+          name: "System",
+          text: `${user.name} (${user.username}) telah meninggalkan grup`,
+          room: activeChat._id
+        })
+      );
+      dispatch(memberLeft(user._id));
+    });
+    // memberremoved
+    io.on("member_removed", ({ member, gId }) => {
+      dispatch(
+        updateMessages({
+          name: "System",
+          text: `${member.name} (${member.username}) telah dikeluarkan`,
+          room: activeChat._id
+        })
+      );
+      if (user._id === member._id) dispatch(groupDeleted(gId));
+      else dispatch(memberRemoved(member._id));
+    });
+    // group deleted
+    io.on("group_deleted", id => {
+      setModal(false);
+      dispatch(groupDeleted(id));
+    });
+  }, [dispatch, io, activeChat._id, user._id]);
 
   useEffect(() => {
     // load chat
@@ -121,8 +150,7 @@ export default function Chat({ io }) {
           showModal={showModal}
         />
         <div className={`${collapse && "collapse"} d-md-block `}>
-          <ChatSearch />
-          <ChatList chats={chats} setChat={setChat} />
+          <ChatList setChat={setChat} />
         </div>
       </div>
       <div

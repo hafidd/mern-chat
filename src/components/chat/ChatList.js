@@ -1,12 +1,29 @@
-import React, { useRef } from "react";
+import React from "react";
 import { formatDate, formatTime } from "../../helpers/date";
 import { useSelector } from "react-redux";
+import { useState } from "react";
 
-export default function ChatList({ chats, setChat }) {
+export default function ChatList({ setChat }) {
+  const [filter, setFilter] = useState("");
+
+  const chats = useSelector(state => state.chats.data);
+  const data = filter
+    ? chats.filter(
+        chat => chat.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1
+      )
+    : chats;
+
   return (
     <div style={{ maxHeight: "82vh", overflowY: "auto" }}>
+      <input
+        type="text"
+        className="form-control mb-2"
+        placeholder="Cari..."
+        style={{ height: "38px", fontSize: "20px" }}
+        onChange={e => setFilter(e.target.value)}
+      />
       <ul className="list-group">
-        {chats.data.map(chat => (
+        {data.map(chat => (
           <ChatListItem key={chat._id} chat={chat} setChat={setChat} />
         ))}
       </ul>

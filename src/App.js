@@ -27,10 +27,13 @@ function App() {
 
   useEffect(() => {
     // connect
-    if (token)
+    if (token){
       if(!io) setIo(socketio.connect(`/?token=${token}`));
-    else if (io) io.close();
-  }, [token]);
+    }
+    else if (io) {
+      io.close();
+    }      
+  }, [token, io]);
 
   // protected route
   const Protected = ({ path, lastPath, children, ...rest }) => {

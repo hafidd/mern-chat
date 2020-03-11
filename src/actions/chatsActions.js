@@ -7,7 +7,11 @@ import {
   UPDATE_MESSAGES,
   GROUP_CREATED,
   NEW_MEMBER,
-  ADDED_TO_GROUP
+  ADDED_TO_GROUP,
+  GROUP_DELETED,
+  LEAVE_CHAT,
+  MEMBER_LEFT,
+  MEMBER_REMOVED
 } from "./types";
 import { headers } from "../helpers/jwt";
 import { clearErrors, returnErrors } from "./errorAction";
@@ -68,20 +72,44 @@ export const privateMessage = userId => dispatch => {
 export const invite = (username, groupId) => dispatch => {
   axios
     .post("/api/chat/invite", { username, groupId }, headers())
-    .then(res => {
-      dispatch({ type: NEW_MEMBER, payload: res.data });
-      dispatch(clearErrors());
-    })
-    .catch(err => {
-      dispatch(returnErrors(err, "INVITE_ERROR"));
-    });
+    .then(() => dispatch(clearErrors()))
+    .catch(err => dispatch(returnErrors(err, "INVITE_ERROR")));
 };
-
-export const newMember = user => dispatch => {
+export const newMember = user => dispatch =>
   dispatch({ type: NEW_MEMBER, payload: user });
-};
 
-//
 export const added = group => dispatch => {
   dispatch({ type: ADDED_TO_GROUP, payload: group });
 };
+
+export const deleteGroup = id => dispatch => {
+  axios
+    .delete(`/api/chat/${id}`, headers())
+    .then(() => dispatch(clearErrors()))
+    .catch(err => dispatch(returnErrors(err, "ERROR_DELETE_GROUP")));
+};
+export const groupDeleted = id => dispatch => {
+  dispatch({ type: LEAVE_CHAT });
+  dispatch({ type: GROUP_DELETED, payload: id });
+};
+
+export const leaveChat = gId => dispatch => {
+  axios
+    .post("/api/chat/leave", { _id: gId }, headers())
+    .then(res => {
+      dispatch(groupDeleted(gId));
+      dispatch(clearErrors());
+    })
+    .catch(err => returnErrors(err, "ERROR_LEAVING_CHAT"));
+};
+export const memberLeft = uId => dispatch =>
+  dispatch({ type: MEMBER_LEFT, payload: uId });
+
+export const removeMember = (gId, uId) => dispatch => {
+  axios
+    .post("/api/chat/remove", { gId, uId }, headers())
+    .then(() => dispatch(clearErrors()))
+    .catch(err => returnErrors(err, "ERROR_REMOVING_MEMBER"));
+};
+export const memberRemoved = uId => dispatch =>
+  dispatch({ type: MEMBER_REMOVED, payload: uId });

@@ -8,12 +8,6 @@ const Chat = require("../../models/Chat");
 const User = require("../../models/User");
 
 module.exports = io => {
-  // GET /api/chat/test
-  // test
-  router.get("/test", (req, res) => {
-    res.send(io.connectedUsers);
-  });
-
   // GET /api/chat
   // user chats
   router.get("/", auth, async (req, res) => {
@@ -29,9 +23,18 @@ module.exports = io => {
           }
         }
       ]).then(chat =>
-        chat.map(chat => {
-          return { ...chat, message: chat.messages ? chat.messages[0] : null };
-        })
+        chat
+          .filter(
+            chat =>
+              chat.type === "group" ||
+              (chat.type === "private" && chat.messages[0].name !== "System")
+          )
+          .map(chat => {
+            return {
+              ...chat,
+              message: chat.messages ? chat.messages[0] : null
+            };
+          })
       );
       return res.json(chats);
     } catch (err) {
@@ -87,7 +90,10 @@ module.exports = io => {
         // return room if exist
         const chat = await Chat.findOne({
           type: "private",
-          members: [req.user._id, userTarget._id]
+          $or: [
+            { members: [userTarget._id, req.user._id] },
+            { members: [req.user._id, userTarget._id] }
+          ]
         });
         if (chat) return res.json({ chat, new: false });
         // create new room
@@ -147,6 +153,72 @@ module.exports = io => {
       return res.json(user);
     } catch (err) {
       handleError(err, res);
+    }
+  });
+
+  // DELETE /api/chat
+  // delete group
+  router.delete("/:id", auth, async (req, res) => {
+    try {
+      const _id = req.params.id;
+      await Chat.findOneAndDelete({ _id, owner: req.user._id });
+      // emit
+      io.to(_id).emit("group_deleted", _id);
+      return res.status(204).send({});
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ err: "Error" });
+    }
+  });
+
+  // POST /api/chat/leave
+  // leave group
+  router.post("/leave", auth, async (req, res) => {
+    try {
+      const { _id } = req.body;
+      let group = await Chat.findOne({ _id, members: req.user._id }).select(
+        "-messages"
+      );
+      if (!group) throw { code: 404, msg: "Group tidak ditemukan" };
+      // update members
+      console.log(group.members);
+      group.members = group.members.filter(
+        member => member.toString() !== req.user._id
+      );
+      group.save();
+      // emit to group
+      io.to(group._id).emit("member_left", req.user);
+      return res.json(group._id);
+    } catch (err) {
+      if (err.code) return res.status(err.code).json({ msg: err.msg });
+      console.log(err);
+      return res.status(500).json({ msg: "Error" });
+    }
+  });
+
+  // POST /api/chat/remove
+  // remove member
+  router.post("/remove", auth, async (req, res) => {
+    try {
+      const { gId, uId } = req.body;
+      if (uId === req.user._id) throw { code: 400, msg: "Gagal" };
+      // group
+      let group = await Chat.findOne({ _id: gId, owner: req.user._id }).select(
+        "-messages"
+      );
+      if (!group) throw { code: 404, msg: "Group tidak ditemukan" };
+      // member
+      const removedMember = await User.findById(uId).select("name username");
+      // update members
+      group.members = group.members.filter(member => member.toString() !== uId);
+      group.save();
+      // emit to group
+      io.to(group._id).emit("member_removed", { member: removedMember, gId });
+      return res.json(group._id);
+    } catch (err) {
+      console.log(err);
+      if (err.code) return res.status(err.code).json({ msg: err.msg });
+      return res.status(500).json({ msg: "Error" });
     }
   });
 

@@ -19,6 +19,7 @@ export default function({ setModal }) {
     if (username) dispatch(newContact(username));
     setUsername("");
   };
+  
   useEffect(() => {
     setFilteredContacts(
       contacts.filter(
@@ -27,7 +28,7 @@ export default function({ setModal }) {
           contact.name.toLowerCase().indexOf(filter.toLowerCase()) > -1
       )
     );
-  }, [filter]);
+  }, [filter, contacts]);
 
   const data = filter ? filteredContacts : contacts;
   return (
@@ -72,7 +73,7 @@ export default function({ setModal }) {
                 setModal(false);
               }}
             >
-              <span style={{ fontSize: "20px" }}>💬</span>
+              <span style={{ fontSize: "20px" }} role="img" aria-label="msg">💬</span>
             </button>
           </li>
         ))}

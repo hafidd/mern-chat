@@ -1,8 +1,11 @@
 import {
   SET_ACTIVE_CHAT,
   UPDATE_MESSAGES,
-  LOGOUT_SUCCESS,
-  NEW_MEMBER
+  NEW_MEMBER,
+  LEAVE_CHAT,
+  MEMBER_LEFT,
+  MEMBER_REMOVED,
+  LOGOUT_SUCCESS
 } from "../actions/types";
 
 const initialState = {
@@ -22,6 +25,15 @@ export default function(state = initialState, action) {
       return { ...state, messages: [...state.messages, action.payload] };
     case NEW_MEMBER:
       return { ...state, members: [...state.members, action.payload] };
+    case MEMBER_LEFT:
+    case MEMBER_REMOVED:
+      return {
+        ...state,
+        members: [
+          ...state.members.filter(member => member._id !== action.payload)
+        ]
+      };
+    case LEAVE_CHAT:
     case LOGOUT_SUCCESS:
       return initialState;
     default:

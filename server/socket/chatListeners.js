@@ -12,12 +12,14 @@ module.exports = chatListeners = function(io) {
             chat.members[0].toString() === socket.user._id
               ? chat.members[1]
               : chat.members[0];
-          // emit room to target
-          io.connectedUsers[target].sockets.forEach(s => {
-            console.log("emit to", s.user.username)
-            io.to(s.id).emit("added", chat);
-            s.join(chat._id);
-          });
+          // emit room to target if online
+          if (io.connectedUsers[target]) {
+            io.connectedUsers[target].sockets.forEach(s => {
+              console.log("emit to", s.user.username);
+              io.to(s.id).emit("added", chat);
+              s.join(chat._id);
+            });
+          }
         }
         // update chat
         chat.messages.push({ name, text, from });

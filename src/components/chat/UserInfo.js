@@ -39,7 +39,7 @@ function ChatMenu({ showModal }) {
             showModal("newgroup");
           }}
         >
-          <span style={s}>➕</span>
+          <span style={s}>+</span>
         </button>
         <button
           className="btn"
@@ -47,7 +47,7 @@ function ChatMenu({ showModal }) {
             showModal("contacts");
           }}
         >
-          <span style={s}>💬</span>
+          <span style={s} role="img" aria-label="a">💬</span>
         </button>
       </span>
     </Fragment>

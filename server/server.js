@@ -10,9 +10,6 @@ const server = app.listen(PORT, console.log(`listening on port ${PORT}`));
 // socketio
 const io = require("./socket/socket").listen(server);
 
-// test
-app.get("/", (req, res) => res.send(`ok!`));
-
 // database
 const db = process.env.MONGODB_URI || "mongodb://localhost/mern-chat";
 mongoose

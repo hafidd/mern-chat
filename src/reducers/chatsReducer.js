@@ -6,6 +6,7 @@ import {
   UPDATE_MESSAGES,
   LOGOUT_SUCCESS,
   GROUP_CREATED,
+  GROUP_DELETED,
   ADDED_TO_GROUP
 } from "../actions/types";
 
@@ -53,6 +54,11 @@ export default function(state = initialState, action) {
       return {
         ...state,
         isLoading: false
+      };
+    case GROUP_DELETED:
+      return {
+        isLoading: false,
+        data: state.data.filter(data => data._id !== action.payload)
       };
     case CLEAR_CHATS:
     case CHATS_ERROR:

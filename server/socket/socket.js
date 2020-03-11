@@ -21,7 +21,7 @@ module.exports.listen = server => {
       };
       io.connectedUsers[socket.user._id] = newUser;
     }
-    //_cl(socket);
+    _cl(socket);
 
     // join groups
     const groups = await Chat.find({ members: socket.user._id }).select("_id");
@@ -35,7 +35,7 @@ module.exports.listen = server => {
       ]["sockets"].filter(({ id }) => id !== socket.id);
       if (io.connectedUsers[socket.user._id].sockets.length === 0)
         delete io.connectedUsers[socket.user._id];
-      //_cl(socket, true);
+      _cl(socket, true);
     });
   });
 
@@ -48,8 +48,12 @@ module.exports.listen = server => {
         dc ? "dis" : ""
       }conected!\nconnected users:`
     );
-    console.log(io.connectedUsers);
-    console.log(`${Object.keys(io.connectedUsers).length} user(s) connected`);
+    //console.log(io.connectedUsers);
+    let cu = [];
+    for (let key in io.connectedUsers)
+      cu.push(io.connectedUsers[key]["username"]);
+    console.log(cu);
+    console.log(`${Object.keys(io.connectedUsers).length} users connected`);
     console.log(new Date().toLocaleString());
     console.log(
       "------------------------------------------------------------------------"
