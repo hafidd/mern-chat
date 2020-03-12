@@ -13,7 +13,8 @@ import {
   groupDeleted,
   memberLeft,
   memberRemoved,
-  leaveChat
+  memberOnline,
+  memberOffline
 } from "../../actions/chatsActions";
 
 import ChatList from "./ChatList";
@@ -30,7 +31,9 @@ import Invite from "./modal/Invite";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
-export default function Chat({ io }) {
+import { io } from "../../io";
+
+export default function Chat() {
   const [collapse, setCollapse] = useState(true);
   const [modal, setModal] = useState(false);
   const [modalContent, setModalContent] = useState(null);
@@ -40,55 +43,60 @@ export default function Chat({ io }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (io) io.off();
-    // new message
-    io.on("message", message => {
-      dispatch(updateMessages(message));
-    });
-    // new group
-    io.on("added", group => {
-      dispatch(added(group));
-    });
-    // new member
-    io.on("new_member", (user, id) => {
-      dispatch(
-        updateMessages({
-          name: "System",
-          text: `${user.name} (${user.username}) telah bergabung!`,
-          room: activeChat._id
-        })
-      );
-      dispatch(newMember(user));
-    });
-    // memberleft
-    io.on("member_left", user => {
-      dispatch(
-        updateMessages({
-          name: "System",
-          text: `${user.name} (${user.username}) telah meninggalkan grup`,
-          room: activeChat._id
-        })
-      );
-      dispatch(memberLeft(user._id));
-    });
-    // memberremoved
-    io.on("member_removed", ({ member, gId }) => {
-      dispatch(
-        updateMessages({
-          name: "System",
-          text: `${member.name} (${member.username}) telah dikeluarkan`,
-          room: activeChat._id
-        })
-      );
-      if (user._id === member._id) dispatch(groupDeleted(gId));
-      else dispatch(memberRemoved(member._id));
-    });
-    // group deleted
-    io.on("group_deleted", id => {
-      setModal(false);
-      dispatch(groupDeleted(id));
-    });
-  }, [dispatch, io, activeChat._id, user._id]);
+    if (io) {
+      io.off();
+      // new message
+      io.on("message", message => {
+        dispatch(updateMessages(message));
+      });
+      // new group
+      io.on("added", group => {
+        dispatch(added(group));
+      });
+      // new member
+      io.on("new_member", (user, id) => {
+        dispatch(
+          updateMessages({
+            name: "System",
+            text: `${user.name} (${user.username}) telah bergabung!`,
+            room: activeChat._id
+          })
+        );
+        dispatch(newMember(user));
+      });
+      // memberleft
+      io.on("member_left", user => {
+        dispatch(
+          updateMessages({
+            name: "System",
+            text: `${user.name} (${user.username}) telah meninggalkan grup`,
+            room: activeChat._id
+          })
+        );
+        dispatch(memberLeft(user._id));
+      });
+      // memberremoved
+      io.on("member_removed", ({ member, gId }) => {
+        dispatch(
+          updateMessages({
+            name: "System",
+            text: `${member.name} (${member.username}) telah dikeluarkan`,
+            room: activeChat._id
+          })
+        );
+        if (user._id === member._id) dispatch(groupDeleted(gId));
+        else dispatch(memberRemoved(member._id));
+      });
+      // group deleted
+      io.on("group_deleted", id => {
+        setModal(false);
+        dispatch(groupDeleted(id));
+      });
+      // member online-offline
+      io.on("member_online", id => dispatch(memberOnline(id)));
+      io.on("member_offline", id => dispatch(memberOffline(id)));
+    }
+  }, [dispatch, activeChat._id, user._id]);
 
   useEffect(() => {
     // load chat
@@ -106,6 +114,7 @@ export default function Chat({ io }) {
   };
 
   const sendMessage = text => {
+    console.log(`sending`);
     const { _id, name } = user;
     io.emit(
       "message",

@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 
 export default function ChatInfo({ chat, showModal }) {
   const { name, type, members } = chat;
-  const online = []; //
   const myName = useSelector(state => state.auth.user.name);
   const groupName =
     type === "group"
@@ -19,7 +18,8 @@ export default function ChatInfo({ chat, showModal }) {
         </p>
         {type === "group" && (
           <small>
-            {members.length} Anggota | Online ({online.length})
+            {members.length} Anggota | Online (
+            {members.reduce((on, member) => on + (member.online ? 1 : 0), 0)})
           </small>
         )}
       </div>

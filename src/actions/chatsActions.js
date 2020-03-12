@@ -11,7 +11,9 @@ import {
   GROUP_DELETED,
   LEAVE_CHAT,
   MEMBER_LEFT,
-  MEMBER_REMOVED
+  MEMBER_REMOVED,
+  MEMBER_ONLINE,
+  MEMBER_OFFLINE
 } from "./types";
 import { headers } from "../helpers/jwt";
 import { clearErrors, returnErrors } from "./errorAction";
@@ -113,3 +115,8 @@ export const removeMember = (gId, uId) => dispatch => {
 };
 export const memberRemoved = uId => dispatch =>
   dispatch({ type: MEMBER_REMOVED, payload: uId });
+
+export const memberOnline = id => dispatch =>
+  dispatch({ type: MEMBER_ONLINE, payload: id });
+export const memberOffline = id => dispatch =>
+  dispatch({ type: MEMBER_OFFLINE, payload: id });

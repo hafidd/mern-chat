@@ -6,6 +6,7 @@ import {
   leaveChat,
   removeMember
 } from "../../../actions/chatsActions";
+import Avatar from "../Avatar";
 
 export default function({ showModal }) {
   const [filter, setFilter] = useState("");
@@ -55,8 +56,13 @@ export default function({ showModal }) {
         {data.map(member => (
           <li key={member.username} className="list-group-item p-1 pl-2">
             <div className="float-left">
-              <p className="mb-0">{member.name}</p>
-              <small className="text-muted">{member.username}</small>
+              <Avatar member={member} />
+              <div className="user-name float-right">
+                <p className="mb-0">{member.name}</p>
+                <small className="text-muted">
+                  {member.username} {member.online && "(online)"}
+                </small>
+              </div>
             </div>
             {myId === owner && (
               <div className="float-right">

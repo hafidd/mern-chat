@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import socketio from "socket.io-client";
 import {
   BrowserRouter as Router,
   Route,
@@ -8,18 +7,18 @@ import {
 } from "react-router-dom";
 import "./App.css";
 
+import { io, connect, disconnect } from "./io";
+
 // components
 import Chat from "./components/chat/Chat";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import { loadUser } from "./actions/authActions";
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
 
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated, token } = useSelector(state => state.auth);
-  const [io, setIo] = useState(null);
 
   useEffect(() => {
     dispatch(loadUser());
@@ -27,13 +26,12 @@ function App() {
 
   useEffect(() => {
     // connect
-    if (token){
-      if(!io) setIo(socketio.connect(`/?token=${token}`));
+    if (token) {
+      connect(token);
+    } else if (io) {
+      disconnect();
     }
-    else if (io) {
-      io.close();
-    }      
-  }, [token, io]);
+  }, [token]);
 
   // protected route
   const Protected = ({ path, lastPath, children, ...rest }) => {
@@ -50,7 +48,7 @@ function App() {
       <Router>
         <Switch>
           <Protected exact path="/">
-            <Chat io={io} />
+            <Chat />
           </Protected>
           <Route exact path="/login">
             <Login />

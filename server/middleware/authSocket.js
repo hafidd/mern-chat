@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const auth = (socket, next) => {
-  //console.log('authenticating socket connection...', socket.handshake.headers.origin);
+  // console.log('authenticating socket connection...', socket.handshake.headers.origin);
   // get token
   const token = socket.handshake.query.token;
   // validate token

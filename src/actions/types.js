@@ -29,3 +29,6 @@ export const MEMBER_LEFT = "MEMBER_LEFT";
 export const GROUP_DELETED = "GROUP_DELETED";
 export const MEMBER_REMOVED = "MEMBER_REMOVED";
 export const ADDED_TO_GROUP = "ADDED_TO_GROUP";
+
+export const MEMBER_ONLINE = "MEMBER_ONLINE";
+export const MEMBER_OFFLINE = "MEMBER_OFFLINE";

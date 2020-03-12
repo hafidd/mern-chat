@@ -5,7 +5,9 @@ import {
   LEAVE_CHAT,
   MEMBER_LEFT,
   MEMBER_REMOVED,
-  LOGOUT_SUCCESS
+  LOGOUT_SUCCESS,
+  MEMBER_ONLINE,
+  MEMBER_OFFLINE
 } from "../actions/types";
 
 const initialState = {
@@ -22,9 +24,27 @@ export default function(state = initialState, action) {
     case SET_ACTIVE_CHAT:
       return { ...action.payload };
     case UPDATE_MESSAGES:
-      return { ...state, messages: [...state.messages, action.payload] };
+      if (action.payload.room === state._id)
+        return { ...state, messages: [...state.messages, action.payload] };
+      return state;
     case NEW_MEMBER:
       return { ...state, members: [...state.members, action.payload] };
+    case MEMBER_ONLINE:
+      return {
+        ...state,
+        members: state.members.map(member => {
+          if (member._id === action.payload) member.online = true;
+          return member;
+        })
+      };
+    case MEMBER_OFFLINE:
+      return {
+        ...state,
+        members: state.members.map(member => {
+          if (member._id === action.payload) member.online = false;
+          return member;
+        })
+      };
     case MEMBER_LEFT:
     case MEMBER_REMOVED:
       return {

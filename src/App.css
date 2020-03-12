@@ -104,3 +104,40 @@
 .whitesmoke {
   background-color: whitesmoke;
 }
+
+
+.user-avatar {
+  display: inline-block;
+  position: relative;
+  padding-right: 10px;  
+}
+.avatar {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+}
+.default-avatar {
+  position: absolute;
+  top: 0; left:0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px green solid;
+  background-color: aliceblue;
+  font-size: 2em;
+  color: green;
+}
+.status {
+  position: absolute;
+  top: 34px;
+  left: 34px;
+  z-index: 1;
+  padding: 7px;
+  border-radius: 12px;
+}
+.on {
+  background-color: #4BAE4F;
+}
+.off {
+  background-color: #808080;
+}

@@ -46,13 +46,20 @@ module.exports = io => {
   // GET /api/chat/id
   // detail chat
   router.get("/:id", auth, async (req, res) => {
-    const _id = req.params.id;
     try {
-      const chat = await Chat.findOne({ _id, members: req.user._id }).populate(
+      const _id = req.params.id;
+      let chat = await Chat.findOne({ _id, members: req.user._id }).populate(
         "members",
         "username name"
       );
-      return res.json(chat);
+      const data = {
+        ...chat.toObject(),
+        members: chat.toObject().members.map(member => ({
+          ...member,
+          online: io.connectedUsers[member._id] !== undefined
+        }))
+      };
+      return res.json(data);
     } catch (err) {
       console.log(err);
       return res.status(500).json({ msg: "Error" });
