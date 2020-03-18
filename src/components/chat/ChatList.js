@@ -2,6 +2,7 @@ import React from "react";
 import { formatDate, formatTime } from "../../helpers/date";
 import { useSelector } from "react-redux";
 import { useState } from "react";
+import Avatar from "./Avatar";
 
 export default function ChatList({ setChat }) {
   const [filter, setFilter] = useState("");
@@ -34,30 +35,34 @@ export default function ChatList({ setChat }) {
 function ChatListItem({ chat, setChat }) {
   const myName = useSelector(state => state.auth.user.name);
   const { name, message, type } = chat;
+  const groupName =
+    type === "group"
+      ? name.substring(0, 28)
+      : name.split("__")[0] === myName
+      ? name.split("__")[1].substring(0, 28)
+      : name.split("__")[0].substring(0, 28);
+
   return (
     <button
       className="list-group-item list-group-item-action p-2"
       onClick={() => setChat(chat)}
     >
-      <p className="m-0">
-        <b>
-          {type === "group"
-            ? name
-            : name.split("__")[0] === myName
-            ? name.split("__")[1]
-            : name.split("__")[0]}
-        </b>
-      </p>
-      <p className="m-0">
-        <small>
-          {message && message.name !== "System" && `${message.name}: `}
-          {message && message.text}
-        </small>
-      </p>
-      <small>{message && formatDate(message.date)}</small>
-      <small className="float-right">
-        {message && formatTime(message.date)}
-      </small>
+      <Avatar data={{ ...chat, name: groupName }} />
+      <div>
+        <div className="m-0">
+          <b>{groupName}</b>
+          <div className="float-right small text-right">
+            {message && formatDate(message.date)} <br />
+            {message && formatTime(message.date)}
+          </div>
+        </div>
+        <p className="m-0">
+          <small>
+            {message && message.name !== "System" && `${message.name}: `}
+            {message && message.text.substring(0, 30)}
+          </small>
+        </p>
+      </div>
     </button>
   );
 }

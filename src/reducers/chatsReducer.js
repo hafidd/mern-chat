@@ -43,13 +43,9 @@ export default function(state = initialState, action) {
       };
     case GROUP_CREATED:
     case ADDED_TO_GROUP:
-      const { _id, name, type, messages } = action.payload;
       state.data.unshift({
-        _id,
-        name,
-        type,
-        messages,
-        message: messages[0]
+        ...action.payload,
+        message: action.payload.messages[0]
       });
       return {
         ...state,

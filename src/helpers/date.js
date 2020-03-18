@@ -1,20 +1,6 @@
 export function formatDate(date) {
   const d = new Date(date);
-  const bulan = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember"
-  ];
-  return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${d.toLocaleString("default", { month: "short" }).toUpperCase()}`;
 }
 
 export function formatTime(date) {

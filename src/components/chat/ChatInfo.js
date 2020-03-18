@@ -1,8 +1,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import Avatar from "./Avatar";
 
 export default function ChatInfo({ chat, showModal }) {
-  const { name, type, members } = chat;
+  const { _id, uId, name, type, members } = useSelector(
+    state => state.activeChat
+  );
   const myName = useSelector(state => state.auth.user.name);
   const groupName =
     type === "group"
@@ -12,6 +15,7 @@ export default function ChatInfo({ chat, showModal }) {
       : name.split("__")[0];
   return (
     <div className="chat-info pl-2">
+      <Avatar data={{ name: groupName, type, _id, uId }} />
       <div>
         <p className="mb-0">
           <b>{groupName}</b>

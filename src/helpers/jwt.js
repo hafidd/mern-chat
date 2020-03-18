@@ -1,11 +1,11 @@
 const decode = require("jwt-decode");
 
-export function headers(paramToken = null) {
+export function headers({ paramToken = null, content = null } = {}) {
   const token = paramToken || localStorage.getItem("token");
   // headers
   const config = {
     headers: {
-      "Content-type": "application/json"
+      "Content-type": !content ? "application/json" : content
     }
   };
   // if token, add to headers

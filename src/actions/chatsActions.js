@@ -39,6 +39,7 @@ export const setActiveChat = chat => dispatch => {
     dispatch({ type: SET_ACTIVE_CHAT, payload: res.data });
   });
 };
+export const closeActiveChat = () => dispatch => dispatch({ type: LEAVE_CHAT });
 
 export const updateMessages = message => dispatch => {
   dispatch({

@@ -1,6 +1,8 @@
 import React, { Fragment } from "react";
 import Logout from "../auth/Logout";
 import { useSelector } from "react-redux";
+import Avatar from "./Avatar";
+import { useState } from "react";
 
 export default function UserInfo({
   collapse,
@@ -8,6 +10,7 @@ export default function UserInfo({
   showModal,
   className = ""
 }) {
+  const [updated, setUpdated] = useState(false);
   const user = useSelector(state => state.auth.user);
   return (
     <div className={`user-info ${className}`}>
@@ -19,6 +22,9 @@ export default function UserInfo({
           <span className="navbar-toggler-icon"></span>
         </span>
       </button>
+      <div className="test" onClick={() => showModal("upload-profile")}>
+        <Avatar data={user} />
+      </div>
       <span className="user-info-text">{user.name}</span>
       <span className="float-right">
         <ChatMenu showModal={showModal} />
@@ -47,7 +53,9 @@ function ChatMenu({ showModal }) {
             showModal("contacts");
           }}
         >
-          <span style={s} role="img" aria-label="a">💬</span>
+          <span style={s} role="img" aria-label="a">
+            💬
+          </span>
         </button>
       </span>
     </Fragment>

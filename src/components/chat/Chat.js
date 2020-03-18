@@ -14,8 +14,12 @@ import {
   memberLeft,
   memberRemoved,
   memberOnline,
-  memberOffline
+  memberOffline,
+  closeActiveChat
 } from "../../actions/chatsActions";
+import { logout } from "../../actions/authActions";
+
+import Welcome from "../Welcome";
 
 import ChatList from "./ChatList";
 import UserInfo from "./UserInfo";
@@ -28,6 +32,7 @@ import NewGroup from "./modal/NewGroup";
 import Contacts from "./modal/Contacts";
 import ChatSettings from "./modal/ChatSettings";
 import Invite from "./modal/Invite";
+import UploadProfile from "./modal/UploadProfile";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -39,8 +44,18 @@ export default function Chat() {
   const [modalContent, setModalContent] = useState(null);
 
   const activeChat = useSelector(state => state.activeChat);
+  const [chatsHistory, setChatsHistory] = useState([]);
+
   const { user } = useSelector(state => state.auth);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (activeChat._id && chatsHistory.length === 0)
+      window.history.pushState({}, "", "/");
+    window.onpopstate = e => {
+      if (activeChat._id) dispatch(closeActiveChat());
+    };
+  }, [activeChat._id, chatsHistory, dispatch]);
 
   useEffect(() => {
     if (io) {
@@ -105,6 +120,8 @@ export default function Chat() {
 
   const setChat = chat => {
     dispatch(setActiveChat(chat));
+    if (activeChat._id)
+      setChatsHistory(chatsHistory => [...chatsHistory, activeChat._id]);
     setCollapse(true);
   };
 
@@ -114,7 +131,6 @@ export default function Chat() {
   };
 
   const sendMessage = text => {
-    console.log(`sending`);
     const { _id, name } = user;
     io.emit(
       "message",
@@ -147,6 +163,8 @@ export default function Chat() {
           <ChatSettings title={activeChat.name} showModal={showModal} />
         ) : modalContent === "invite-member" ? (
           <Invite title={activeChat.name} submitInvite={submitInvite} />
+        ) : modalContent === "upload-profile" ? (
+          <UploadProfile title={"Foto"} />
         ) : (
           ""
         )}
@@ -168,70 +186,13 @@ export default function Chat() {
       >
         {activeChat._id ? (
           <Fragment>
-            <ChatInfo chat={activeChat} showModal={showModal} />
+            <ChatInfo showModal={showModal} />
             <ChatMessages messages={activeChat.messages} />
             <ChatForm sendMessage={sendMessage} />
           </Fragment>
         ) : (
-          <Welcome />
+          <Welcome className="welcome" />
         )}
-      </div>
-    </div>
-  );
-}
-
-function Welcome() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh"
-      }}
-    >
-      <div className="text-center">
-        <h2>
-          <a
-            href="https://www.mongodb.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            M
-          </a>
-          <a
-            href="https://expressjs.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            E
-          </a>
-          <a
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            R
-          </a>
-          <a
-            href="https://nodejs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            N
-          </a>{" "}
-          CHAT APP
-        </h2>
-        <p>
-          +
-          <a
-            href="https://socket.io/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            socket.io
-          </a>
-        </p>
       </div>
     </div>
   );

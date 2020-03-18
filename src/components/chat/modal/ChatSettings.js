@@ -56,7 +56,7 @@ export default function({ showModal }) {
         {data.map(member => (
           <li key={member.username} className="list-group-item p-1 pl-2">
             <div className="float-left">
-              <Avatar member={member} />
+              <Avatar data={member} />
               <div className="user-name float-right">
                 <p className="mb-0">{member.name}</p>
                 <small className="text-muted">

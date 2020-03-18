@@ -6,6 +6,8 @@ import { login } from "../../actions/authActions";
 import { useEffect } from "react";
 import { clearErrors } from "../../actions/errorAction";
 
+import Welcome from "../Welcome";
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,37 +28,43 @@ export default function Login() {
 
   if (isAuthenticated) return <Redirect to="/" />;
   return (
-    <div className="row auth-container p-5">
-      <div className="col-lg-4 offset-lg-4 col-md-6 offset-md-3">
-        <h2>Login</h2>
-        {JSON.stringify(error)}
-        <form onSubmit={e => submit(e)}>
+    <div className="row auth-container">
+      <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2 card p-5">
+        <Welcome />
+        <hr />
+        <form onSubmit={e => submit(e)} className="form">
           <div className="form-group row">
             <label className="col-md-3 col-form-label" htmlFor="username">
               Username
             </label>
-            <input
-              type="text"
-              className="form-control col-md-9"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-            />
+            <div className="col-md-9">
+              <input
+                type="text"
+                className="form-control"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group row">
             <label className="col-md-3 col-form-label" htmlFor="password">
               Password
             </label>
-            <input
-              type="password"
-              className="form-control col-md-9"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
+            <div className="col-md-9">
+              <input
+                type="password"
+                className="form-control"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group row">
-            <button className="btn btn-outline-success btn-block offset-md-3 col-md-3">
-              Login
-            </button>
+            <div className="offset-md-3 col-md-3">
+              <button className="btn btn-outline-primary btn-block">
+                Login
+              </button>
+            </div>
             <div className="col-md-3 offset-3 col-form-label text-right">
               <Link to="/register">Register</Link>
             </div>

@@ -15,7 +15,6 @@ module.exports = chatListeners = function(io) {
           // emit room to target if online
           if (io.connectedUsers[target]) {
             io.connectedUsers[target].sockets.forEach(s => {
-              console.log("emit to", s.user.username);
               io.to(s.id).emit("added", chat);
               s.join(chat._id);
             });

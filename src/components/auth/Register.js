@@ -6,6 +6,8 @@ import { register } from "../../actions/authActions";
 import { newErrors, clearErrors } from "../../actions/errorAction";
 import { useEffect } from "react";
 
+import Welcome from "../Welcome";
+
 export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -39,74 +41,86 @@ export default function Register() {
   if (isAuthenticated) return <Redirect to="/" />;
   return (
     <div className="row auth-container p-5">
-      <div className="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-        <h2>Register</h2>
-        {JSON.stringify(error)}
+      <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2 card p-5">
+        <Welcome />
+        <hr/>
         <form onSubmit={e => submit(e)}>
           <div className="form-group row">
             <label className="col-form-label col-md-3" htmlFor="username">
               Username
             </label>
-            <input
-              placeholder="Username"
-              type="text"
-              className="form-control col-md-9"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-            />
+            <div className="col-md-9">
+              <input
+                placeholder="Username"
+                type="text"
+                className="form-control"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group row">
             <label className="col-form-label col-md-3" htmlFor="email">
               Email
             </label>
-            <input
-              placeholder="Email"
-              type="email"
-              className="form-control col-md-9"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-            />
+            <div className="col-md-9">
+              <input
+                placeholder="Email"
+                type="email"
+                className="form-control"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group row">
             <label className="col-form-label col-md-3" htmlFor="name">
               Nama
             </label>
-            <input
-              placeholder="Nama"
-              type="text"
-              className="form-control col-md-9"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
+            <div className="col-md-9">
+              <input
+                placeholder="Nama"
+                type="text"
+                className="form-control"
+                value={name}
+                onChange={e => setName(e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group row">
             <label className="col-form-label col-md-3" htmlFor="password">
               Password
             </label>
-            <input
-              placeholder="Password"
-              type="password"
-              className="form-control col-md-9"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
+            <div className="col-md-9">
+              <input
+                placeholder="Password"
+                type="password"
+                className="form-control"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group row">
             <label className="col-form-label col-md-3" htmlFor="password2">
               Konfirmasi Password
             </label>
-            <input
-              placeholder="Konfirmasi password"
-              type="password"
-              className="form-control col-md-9"
-              value={password2}
-              onChange={e => setPassword2(e.target.value)}
-            />
+            <div className="col-md-9">
+              <input
+                placeholder="Konfirmasi password"
+                type="password"
+                className="form-control"
+                value={password2}
+                onChange={e => setPassword2(e.target.value)}
+              />
+            </div>
           </div>
           <div className="form-group row">
-            <button className="btn btn-outline-success btn-block offset-md-3 col-md-3">
-              Register
-            </button>
+            <div className="offset-md-3 col-md-3">
+              <button className="btn btn-outline-success btn-block">
+                Register
+              </button>
+            </div>
             <div className="col-md-3 offset-3 col-form-label text-right">
               <Link to="/login">Login</Link>
             </div>

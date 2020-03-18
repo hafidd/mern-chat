@@ -1,7 +1,8 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { useRef } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { formatDate, formatTime } from "../../helpers/date";
 
 export default function ChatMessages({ messages }) {
   const end = useRef(null);
@@ -20,8 +21,21 @@ export default function ChatMessages({ messages }) {
           }`}
           key={i}
         >
-          {message.from && message.from !== id && message.name + ": "}
-          {message.text}
+          <div>
+            {message.from && message.from !== id && (
+              <Fragment>
+                <span className="small">
+                  <strong>{message.name}</strong>
+                </span>
+                <hr className="mb-0 mt-0" />
+              </Fragment>
+            )}
+            {message.text}
+            <hr className="mt-0 mb-0" />
+            <span className="float-right small text-muted">
+              {formatDate(message.date)} {formatTime(message.date)}
+            </span>
+          </div>
         </div>
       ))}
       <div ref={end}></div>
