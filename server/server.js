@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 require("dotenv").config();
 
 // init app
@@ -22,6 +23,9 @@ mongoose
   .then(() => console.log("mongodb connected..."))
   .catch(err => console.log("db error", err));
 
+// static
+app.use(express.static(path.join(__dirname, "./../build")));
+
 // routes
 global.__basedir = __dirname;
 app.use("/api/users", require("./router/api/users"));
@@ -30,7 +34,6 @@ app.use("/files", require("./router/api/files"));
 
 // socket listeners
 require("./socket/chatListeners")(io);
-
 
 //tets
 const getHello = a =>
