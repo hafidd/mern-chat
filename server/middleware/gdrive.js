@@ -101,6 +101,15 @@ const uploadProfile = (req, res, next) => {
                     return next();
                   }
                 );
+              } else {
+                // upload
+                const profilePic = await upload(
+                  folderId,
+                  buffer,
+                  `${req.user._id}.jpeg`
+                );
+                req.profilePic = profilePic;
+                return next();
               }
             })
             .catch(err => next(err));
@@ -116,9 +125,7 @@ const downloadProfile = async (req, res, next) => {
   const folderId =
     process.env.GDRIVE_PROFILE_DIR || "1Gvwja5WrMSrOw7jj272-jWcDWZUmzBti";
   try {
-    console.log(`get file list`);
     const files = await list(folderId, `${req.params.id}.jpeg`);
-    console.log(files);
     // console.log(files);
     if (!files.files.length)
       return res.status(404).json({ msg: "img not found" });
