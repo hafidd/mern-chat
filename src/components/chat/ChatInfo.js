@@ -16,7 +16,7 @@ export default function ChatInfo({ chat, showModal }) {
   return (
     <div className="chat-info pl-2">
       <Avatar data={{ name: groupName, type, _id, uId }} />
-      <div>
+      <div className="chat-info-text">
         <p className="mb-0">
           <b>{groupName}</b>
         </p>

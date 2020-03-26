@@ -78,7 +78,11 @@
   border-right: 2px solid white;
 }
 .user-info-text {
-  font-size: 120%;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+.chat-info-text {
+  flex: 1;
 }
 
 .chat-messages {
@@ -145,6 +149,7 @@ div.chat-info div.user-avatar.float-left img.avatar {
   height: 6vh;
   width: 6vh;
 }
+
 .default-avatar {
   position: absolute;
   top: 0;

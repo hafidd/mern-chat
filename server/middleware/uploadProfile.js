@@ -15,7 +15,7 @@ const upload = multer({
 }).single("photo");
 
 const uploadProfile = (req, res, next) => {
-  //console.log(req.files);
+  console.log(req.files);
   if (!req.user) return res.status(401).end();
   upload(req, res, err => {
     if (err) {
