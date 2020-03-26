@@ -75,7 +75,6 @@ const uploadProfile = (req, res, next) => {
       if (["image/jpeg", "image/png"].indexOf(mimeType) === -1)
         return res.status(400).json({ msg: "Please upload jpg/png" });
       // resize
-      console.log(req.file);
       sharp(req.file.buffer)
         .toBuffer()
         .then(data => {
@@ -84,6 +83,7 @@ const uploadProfile = (req, res, next) => {
             .toFormat("jpeg")
             .toBuffer()
             .then(async buffer => {
+              console.log("resize success");
               // delete old file
               const files = await list(folderId, `${req.user._id}.jpeg`);
               if (files.files.length) {
@@ -116,7 +116,9 @@ const downloadProfile = async (req, res, next) => {
   const folderId =
     process.env.GDRIVE_PROFILE_DIR || "1Gvwja5WrMSrOw7jj272-jWcDWZUmzBti";
   try {
+    console.log(`get file list`);
     const files = await list(folderId, `${req.params.id}.jpeg`);
+    console.log(files);
     // console.log(files);
     if (!files.files.length)
       return res.status(404).json({ msg: "img not found" });
