@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../../middleware/auth");
+const auth = require("../middleware/auth");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 // model
-const Chat = require("../../models/Chat");
-const User = require("../../models/User");
+const Chat = require("../models/Chat");
+const User = require("../models/User");
 
 module.exports = io => {
   // GET /api/chat

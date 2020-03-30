@@ -28,12 +28,12 @@ app.use(express.static(path.join(__dirname, "./../build")));
 
 // routes
 global.__basedir = __dirname;
-app.use("/api/users", require("./router/api/users"));
-app.use("/api/chat", require("./router/api/chat")(io));
-app.use("/files", require("./router/api/files"));
+app.use("/api/users", require("./api/users"));
+app.use("/api/chat", require("./api/chat")(io));
+app.use("/files", require("./api/files"));
 
 // socket listeners
-require("./socket/chatListeners")(io);
+require("./socket/chatListeners")(io); 
 
 //tets
 const getHello = a =>
