@@ -9,7 +9,7 @@ const scopes = ["https://www.googleapis.com/auth/drive"];
 const auth = new google.auth.JWT(
   process.env.GDRIVE_API_CLIENT_EMAIL,
   null,
-  process.env.GDRIVE_API_PRIVATE_KEY,
+  process.env.GDRIVE_API_PRIVATE_KEY.replace(/\\n/gm, '\n'),
   scopes
 );
 const drive = google.drive({ version: "v3", auth });
