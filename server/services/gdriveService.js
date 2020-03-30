@@ -4,12 +4,12 @@ const magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
 const sharp = require("sharp");
 // gdrive api
 const { google } = require("googleapis");
-const credentials = require("../credentials.json");
+// const credentials = require("../credentials.json");
 const scopes = ["https://www.googleapis.com/auth/drive"];
 const auth = new google.auth.JWT(
   process.env.GDRIVE_API_CLIENT_EMAIL,
   null,
-  credentials.private_key,
+  process.env.GDRIVE_API_PRIVATE_KEY,
   scopes
 );
 const drive = google.drive({ version: "v3", auth });

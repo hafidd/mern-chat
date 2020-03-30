@@ -5,7 +5,7 @@ const auth = require("../middleware/auth");
 const multer = require("multer");
 const upload = multer();
 // service
-const { uploadProfile, downloadProfile } = process.env.USE_GDRIVE
+const { uploadProfile, downloadProfile } = process.env.USE_GDRIVE == 1
   ? require("../services/gdriveService")
   : require("../services/localFileService");
 
