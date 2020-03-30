@@ -15,7 +15,9 @@ export default function ChatInfo({ chat, showModal }) {
       : name.split("__")[0];
   return (
     <div className="chat-info pl-2">
-      <Avatar data={{ name: groupName, type, _id, uId }} />
+      <div className="test" onClick={() => showModal("upload-group")}>
+        <Avatar data={{ name: groupName, type, _id, uId }} />
+      </div>
       <div className="chat-info-text">
         <p className="mb-0">
           <b>{groupName}</b>

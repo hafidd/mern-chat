@@ -165,6 +165,8 @@ export default function Chat() {
           <Invite title={activeChat.name} submitInvite={submitInvite} />
         ) : modalContent === "upload-profile" ? (
           <UploadProfile title={"Foto"} />
+        ) : modalContent === "upload-group" ? (
+          <UploadProfile title={"Foto"} group={true} />
         ) : (
           ""
         )}

@@ -1,13 +1,14 @@
 import React, { Fragment } from "react";
 import axios from "axios";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { returnErrors } from "../../../actions/errorAction";
 import { headers } from "../../../helpers/jwt";
 
 export default function({ group = false }) {
   const [success, setSuccess] = useState(null);
   const [file, setFile] = useState("");
+  const groupId = useSelector(state=>state.activeChat._id)
   const dispatch = useDispatch();
   const submit = e => {
     e.preventDefault();
@@ -18,7 +19,7 @@ export default function({ group = false }) {
       console.log(formData.get("photo"));
       axios
         .post(
-          !group ? "/files/profile" : "/files/group",
+          !group ? "/files/profile" : `/files/group/${groupId}`,
           formData,
           headers({ content: "mutipart/form-data" })
         )

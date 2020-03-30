@@ -5,25 +5,26 @@ import axios from "axios";
 import { headers } from "../../helpers/jwt";
 
 export default function({ data }) {
-  const [img, setImg] = useState(false);
+  const [img, setImg] = useState("");
 
   useEffect(() => {
+    const source = axios.CancelToken.source();
+    setImg("");
     axios
       .get(
         data.type !== "group"
           ? `/files/profile/${data.uId || data._id}`
           : `/files/group/${data._id}`,
-        { ...headers(), responseType: "arraybuffer" }
+        { ...headers(), responseType: "arraybuffer", cancelToken: source.token }
       )
       .then(res => {
         setImg(
           "data:;base64," + Buffer.from(res.data, "binary").toString("base64")
         );
       })
-      .catch(err => {
-        setImg(false);
-      });
-  }, [data.uId, data._id]);
+      .catch();
+    return () => source.cancel();
+  }, [data.uId, data._id, data.type]);
 
   return (
     <div className="user-avatar float-left">

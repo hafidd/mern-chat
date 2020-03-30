@@ -9,7 +9,7 @@ const scopes = ["https://www.googleapis.com/auth/drive"];
 const auth = new google.auth.JWT(
   process.env.GDRIVE_API_CLIENT_EMAIL,
   null,
-  process.env.GDRIVE_API_PRIVATE_KEY.replace(/\\n/gm, '\n'),
+  process.env.GDRIVE_API_PRIVATE_KEY.replace(/\\n/gm, "\n"),
   scopes
 );
 const drive = google.drive({ version: "v3", auth });
@@ -62,10 +62,11 @@ const list = (folderId, name, pageToken = null) =>
     });
   });
 
-const uploadProfile = (file, userId) =>
+const uploadProfile = ({ file, id, group = false }) =>
   new Promise(async (resolve, reject) => {
-    const folderId =
-      process.env.GDRIVE_API_PROFILE_DIR;
+    const folderId = !group
+      ? process.env.GDRIVE_API_PROFILE_DIR
+      : process.env.GDRIVE_API_GROUP_DIR;
     //cek type
     magic.detect(file.buffer, (err, mimeType) => {
       if (err) return reject(err);
@@ -82,7 +83,7 @@ const uploadProfile = (file, userId) =>
             .then(async buffer => {
               try {
                 // delete old file
-                const files = await list(folderId, `${userId}.jpeg`);
+                const files = await list(folderId, `${id}.jpeg`);
                 if (files.files.length) {
                   drive.files.delete(
                     { fileId: files.files[0].id },
@@ -94,7 +95,7 @@ const uploadProfile = (file, userId) =>
                         const profilePic = await upload(
                           folderId,
                           buffer,
-                          `${userId}.jpeg`
+                          `${id}.jpeg`
                         );
                         return resolve(profilePic);
                       } catch (err) {
@@ -109,7 +110,7 @@ const uploadProfile = (file, userId) =>
                     const profilePic = await upload(
                       folderId,
                       buffer,
-                      `${userId}.jpeg`
+                      `${id}.jpeg`
                     );
                     return resolve(profilePic);
                   } catch (err) {
@@ -126,16 +127,16 @@ const uploadProfile = (file, userId) =>
     });
   });
 
-const downloadProfile = userId =>
+const downloadProfile = ({ id, group = false }) =>
   new Promise(async (resolve, reject) => {
-    const folderId =
-      process.env.GDRIVE_API_PROFILE_DIR;
+    const folderId = !group
+      ? process.env.GDRIVE_API_PROFILE_DIR
+      : process.env.GDRIVE_API_GROUP_DIR;
     try {
-      const files = await list(folderId, `${userId}.jpeg`);
-      // console.log(files);
-      if (!files.files.length)
+      const data = await list(folderId, `${id}.jpeg`);
+      if (!data.files.length)
         return reject({ statusCode: 404, msg: "img not found" });
-      const fileId = files.files[0].id;
+      const fileId = data.files[0].id;
       drive.files.get(
         { fileId: fileId, alt: "media" },
         { responseType: "stream" },
