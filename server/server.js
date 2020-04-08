@@ -33,7 +33,7 @@ app.use("/api/chat", require("./api/chat")(io));
 app.use("/files", require("./api/files"));
 
 // socket listeners
-require("./socket/chatListeners")(io); 
+require("./socket/chatListeners")(io);
 
 //tets
 const getHello = a =>
