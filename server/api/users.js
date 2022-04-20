@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
         name: newUser.name,
         email: newUser.email
       },
-      process.env.JWT_SECRET || "",
+      process.env.JWT_SECRET || "secret",
       { expiresIn: 7200 },
       (err, token) => {
         if (err) throw err;
@@ -67,7 +67,7 @@ router.post("/auth", async (req, res) => {
         // jwt
         jwt.sign(
           { _id, username, name, email },
-          process.env.JWT_SECRET || "",
+          process.env.JWT_SECRET || "secret",
           { expiresIn: 7200 },
           (err, token) => {
             if (err) throw err;

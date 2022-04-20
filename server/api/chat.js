@@ -7,7 +7,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const Chat = require("../models/Chat");
 const User = require("../models/User");
 
-module.exports = io => {
+module.exports = (io) => {
   // GET /api/chat
   // user chats
   router.get("/", auth, async (req, res) => {
@@ -20,17 +20,17 @@ module.exports = io => {
             name: 1,
             type: 1,
             members: 1,
-            messages: { $slice: ["$messages", -1] }
-          }
-        }
-      ]).then(chat =>
+            messages: { $slice: ["$messages", -1] },
+          },
+        },
+      ]).then((chat) =>
         chat
           .filter(
-            chat =>
+            (chat) =>
               chat.type === "group" ||
               (chat.type === "private" && chat.messages[0].name !== "System")
           )
-          .map(chat => {
+          .map((chat) => {
             return {
               ...chat,
               uId:
@@ -39,7 +39,7 @@ module.exports = io => {
                     ? chat.members[1]
                     : chat.members[0]
                   : null,
-              message: chat.messages ? chat.messages[0] : null
+              message: chat.messages ? chat.messages[0] : null,
             };
           })
       );
@@ -62,16 +62,16 @@ module.exports = io => {
       if (!chat) throw { code: 404, msg: "Group tidak ditemukan" };
       const data = {
         ...chat.toObject(),
-        members: chat.toObject().members.map(member => ({
+        members: chat.toObject().members.map((member) => ({
           ...member,
-          online: io.connectedUsers[member._id] !== undefined
+          online: io.connectedUsers[member._id] !== undefined,
         })),
         uId:
           chat.type === "private"
             ? chat.members[0]._id.toString() === req.user._id
               ? chat.members[1]._id
               : chat.members[0]._id
-            : null
+            : null,
       };
       return res.json(data);
     } catch (err) {
@@ -93,18 +93,18 @@ module.exports = io => {
           type,
           owner: req.user._id,
           members: [req.user._id],
-          messages: [{ name: "System", text: `Group "${name}" telah dibuat` }]
+          messages: [{ name: "System", text: `Group "${name}" telah dibuat` }],
         });
         // save
         await newGroup.save();
         // join group
-        io.connectedUsers[req.user._id].sockets.forEach(socket =>
-          socket.join(newGroup._id)
+        io.connectedUsers[req.user._id].sockets.forEach((socket) =>
+          socket.join(newGroup._id.toString())
         );
         // return group data
         return res.json({
           ...newGroup.toObject(),
-          members: [{ ...req.user, online: true }]
+          members: [{ ...req.user, online: true }],
         });
       } catch (err) {
         return handleError(err, res);
@@ -122,8 +122,8 @@ module.exports = io => {
           type: "private",
           $or: [
             { members: [userTarget._id, req.user._id] },
-            { members: [req.user._id, userTarget._id] }
-          ]
+            { members: [req.user._id, userTarget._id] },
+          ],
         });
         if (chat) return res.json({ chat, new: false });
         // create new room
@@ -134,18 +134,18 @@ module.exports = io => {
           messages: [
             {
               name: "System",
-              text: `Percakapan : ${req.user.name}, ${userTarget.name}`
-            }
-          ]
+              text: `Percakapan : ${req.user.name}, ${userTarget.name}`,
+            },
+          ],
         });
         await newGroup.save();
         // join group
-        io.connectedUsers[req.user._id].sockets.forEach(socket =>
-          socket.join(newGroup._id)
+        io.connectedUsers[req.user._id].sockets.forEach((socket) =>
+          socket.join(newGroup._id.toString())
         );
         return res.json({
           chat: { ...newGroup.toObject(), uId: userTarget._id },
-          new: true
+          new: true,
         });
       } catch (err) {
         return handleError(err, res);
@@ -165,7 +165,7 @@ module.exports = io => {
       let group = await Chat.findOne({
         _id: groupId,
         owner: req.user._id,
-        members: { $ne: user._id }
+        members: { $ne: user._id },
       });
       if (!group)
         return res
@@ -176,13 +176,15 @@ module.exports = io => {
       await group.save();
       // emit to invited user if online
       if (io.connectedUsers[user._id]) {
-        io.connectedUsers[user._id].sockets.forEach(socket => {
+        io.connectedUsers[user._id].sockets.forEach((socket) => {
           io.to(socket.id).emit("added", group);
-          socket.join(group._id);
+          socket.join(group._id.toString());
         });
       }
       // to group
-      io.to(group._id).emit("new_member", user);
+      io.to(group._id.toString()).emit("new_member", user);
+      if (io.connectedUsers[user._id])
+        io.to(group._id.toString()).emit("member_online", user._id);
       // return success
       // return res.json({
       //   msg: `"${user.name}" ditambahkan ke group "${group.name}"`
@@ -220,11 +222,11 @@ module.exports = io => {
       // update members
       console.log(group.members);
       group.members = group.members.filter(
-        member => member.toString() !== req.user._id
+        (member) => member.toString() !== req.user._id
       );
       group.save();
       // emit to group
-      io.to(group._id).emit("member_left", req.user);
+      io.to(group._id.toString()).emit("member_left", req.user);
       return res.json(group._id);
     } catch (err) {
       if (err.code) return res.status(err.code).json({ msg: err.msg });
@@ -247,10 +249,15 @@ module.exports = io => {
       // member
       const removedMember = await User.findById(uId).select("name username");
       // update members
-      group.members = group.members.filter(member => member.toString() !== uId);
+      group.members = group.members.filter(
+        (member) => member.toString() !== uId
+      );
       group.save();
       // emit to group
-      io.to(group._id).emit("member_removed", { member: removedMember, gId });
+      io.to(group._id.toString()).emit("member_removed", {
+        member: removedMember,
+        gId,
+      });
       return res.json(group._id);
     } catch (err) {
       console.log(err);

@@ -1,6 +1,6 @@
 // mmmagic, sharp
-const mmm = require("mmmagic");
-const magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
+//const mmm = require("mmmagic");
+//const magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE);
 const sharp = require("sharp");
 // gdrive api
 const { google } = require("googleapis");
@@ -21,19 +21,19 @@ const upload = (folderId, file, fileName = null) =>
     const stream = require("stream");
     const fileMetadata = {
       name: fileName || file.originalname,
-      parents: [folderId]
+      parents: [folderId],
     };
     let bufferStream = new stream.PassThrough();
     bufferStream.end(file);
     var media = {
       mimeType: file.mimetype,
-      body: bufferStream
+      body: bufferStream,
     };
     drive.files.create(
       {
         resource: fileMetadata,
         media: media,
-        fields: "id, thumbnailLink, webContentLink"
+        fields: "id, thumbnailLink, webContentLink",
       },
       (err, file) => {
         if (err) {
@@ -49,7 +49,7 @@ const list = (folderId, name, pageToken = null) =>
   new Promise((resolve, reject) => {
     let options = {
       fields: "files(id, name, webContentLink, thumbnailLink)",
-      q: `"${folderId}" in parents`
+      q: `"${folderId}" in parents`,
     };
     if (name) options.q = options.q + ` and name="${name}"`;
     if (pageToken) options.pageToken = pageToken;
@@ -57,7 +57,7 @@ const list = (folderId, name, pageToken = null) =>
       if (err) return reject(err);
       resolve({
         files: res.data.files,
-        nextPageToken: res.data.nextPageToken || null
+        nextPageToken: res.data.nextPageToken || null,
       });
     });
   });
@@ -67,64 +67,65 @@ const uploadProfile = ({ file, id, group = false }) =>
     const folderId = !group
       ? process.env.GDRIVE_API_PROFILE_DIR
       : process.env.GDRIVE_API_GROUP_DIR;
+
     //cek type
-    magic.detect(file.buffer, (err, mimeType) => {
-      if (err) return reject(err);
-      if (["image/jpeg", "image/png"].indexOf(mimeType) === -1)
-        return reject({ statusCode: 400, msg: "Please upload jpg/png" });
-      // resize, convert jpeg
-      sharp(file.buffer)
-        .toBuffer()
-        .then(data => {
-          sharp(data)
-            .resize(150)
-            .toFormat("jpeg")
-            .toBuffer()
-            .then(async buffer => {
-              try {
-                // delete old file
-                const files = await list(folderId, `${id}.jpeg`);
-                if (files.files.length) {
-                  drive.files.delete(
-                    { fileId: files.files[0].id },
-                    async (err, response) => {
-                      // err delete
-                      if (err) return reject(err);
-                      try {
-                        // upload
-                        const profilePic = await upload(
-                          folderId,
-                          buffer,
-                          `${id}.jpeg`
-                        );
-                        return resolve(profilePic);
-                      } catch (err) {
-                        // upload err
-                        return reject(err);
-                      }
+    //magic.detect(file.buffer, (err, mimeType) => {
+    //});
+
+    if (["image/jpeg", "image/png"].indexOf(file.mimeType) === -1)
+      return reject({ statusCode: 400, msg: "Please upload jpg/png" });
+    // resize, convert jpeg
+    sharp(file.buffer)
+      .toBuffer()
+      .then((data) => {
+        sharp(data)
+          .resize(150)
+          .toFormat("jpeg")
+          .toBuffer()
+          .then(async (buffer) => {
+            try {
+              // delete old file
+              const files = await list(folderId, `${id}.jpeg`);
+              if (files.files.length) {
+                drive.files.delete(
+                  { fileId: files.files[0].id },
+                  async (err, response) => {
+                    // err delete
+                    if (err) return reject(err);
+                    try {
+                      // upload
+                      const profilePic = await upload(
+                        folderId,
+                        buffer,
+                        `${id}.jpeg`
+                      );
+                      return resolve(profilePic);
+                    } catch (err) {
+                      // upload err
+                      return reject(err);
                     }
-                  );
-                } else {
-                  try {
-                    // upload
-                    const profilePic = await upload(
-                      folderId,
-                      buffer,
-                      `${id}.jpeg`
-                    );
-                    return resolve(profilePic);
-                  } catch (err) {
-                    // upload err
-                    return reject(err);
                   }
+                );
+              } else {
+                try {
+                  // upload
+                  const profilePic = await upload(
+                    folderId,
+                    buffer,
+                    `${id}.jpeg`
+                  );
+                  return resolve(profilePic);
+                } catch (err) {
+                  // upload err
+                  return reject(err);
                 }
-              } catch (err) {
-                // upload err
-                return reject(err);
               }
-            });
-        });
-    });
+            } catch (err) {
+              // upload err
+              return reject(err);
+            }
+          });
+      });
   });
 
 const downloadProfile = ({ id, group = false }) =>
@@ -152,5 +153,5 @@ const downloadProfile = ({ id, group = false }) =>
 
 module.exports = {
   uploadProfile,
-  downloadProfile
+  downloadProfile,
 };

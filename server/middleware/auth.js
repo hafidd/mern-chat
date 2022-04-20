@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
   const token = authHeader.split(" ")[1];
   // validate token
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || '');
+    req.user = jwt.verify(token, process.env.JWT_SECRET || "secret");
     next();
   } catch (err) {
     return res.status(401).json({ msg: "Invalid Token" });

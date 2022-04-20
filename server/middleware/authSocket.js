@@ -6,7 +6,7 @@ const auth = (socket, next) => {
   const token = socket.handshake.query.token;
   // validate token
   try {
-    socket.user = jwt.verify(token, process.env.JWT_SECRET || "");
+    socket.user = jwt.verify(token, process.env.JWT_SECRET || "secret");
     //console.log('ok..');
     next();
   } catch (err) {

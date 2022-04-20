@@ -108,7 +108,7 @@ export default function Chat() {
         dispatch(groupDeleted(id));
       });
       // member online-offline
-      io.on("member_online", id => dispatch(memberOnline(id)));
+      io.on("member_online", id => {dispatch(memberOnline(id))});
       io.on("member_offline", id => dispatch(memberOffline(id)));
     }
   }, [dispatch, activeChat._id, user._id]);

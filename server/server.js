@@ -1,4 +1,5 @@
 const express = require("express");
+const { createServer } = require("http");
 const mongoose = require("mongoose");
 const path = require("path");
 require("dotenv").config();
@@ -6,10 +7,22 @@ require("dotenv").config();
 // init app
 const app = express();
 app.use(express.json());
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, console.log(`listening on port ${PORT}`));
+httpServer.listen(PORT, console.log(`listening on port ${PORT}`));
+
+//const server = app.listen(PORT, console.log(`listening on port ${PORT}`));
+
 // socketio
-const io = require("./socket/socket").listen(server);
+const io = require("./socket/socket")(httpServer);
+require("./socket/chatListeners")(io);
+
+app.get("/testmit", async(req, res) => {
+  const us = await io.in("roomTest").fetchSockets()
+  console.log(us);
+
+  res.send("");
+});
 
 // database
 const db = process.env.MONGODB_URI || "mongodb://localhost/mern-chat";
@@ -18,10 +31,10 @@ mongoose
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true,
-    useFindAndModify: false
+    useFindAndModify: false,
   })
   .then(() => console.log("mongodb connected..."))
-  .catch(err => console.log("db error", err));
+  .catch((err) => console.log("db error", err));
 
 // static
 app.use(express.static(path.join(__dirname, "./../build")));
@@ -32,17 +45,14 @@ app.use("/api/users", require("./api/users"));
 app.use("/api/chat", require("./api/chat")(io));
 app.use("/files", require("./api/files"));
 
-// socket listeners
-require("./socket/chatListeners")(io);
-
-//tets
-const getHello = a =>
-  new Promise(function(resolve, reject) {
-    setTimeout(function() {
+//test
+const getHello = (a) =>
+  new Promise(function (resolve, reject) {
+    setTimeout(function () {
       resolve({ id: a, text: "hello" });
     }, 2000);
   });
-const getWorld = a =>
+const getWorld = (a) =>
   new Promise((resolve, reject) => {
     setTimeout(() => resolve({ id: a, text: "world" }), 5000);
   });

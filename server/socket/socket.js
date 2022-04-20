@@ -1,14 +1,16 @@
-const socketio = require("socket.io");
+//const socketio = require("socket.io");
+const { Server } = require("socket.io");
 const auth = require("../middleware/authSocket");
 
-module.exports.listen = server => {
-  io = socketio.listen(server);
+module.exports = (server) => {
+  //io = socketio.listen(server); < - socketio v2
+  const io = new Server(server, { allowEIO3: true });
   // users
   io.connectedUsers = {};
   // auth
   io.use(auth);
   // user connected
-  io.on("connection", async socket => {
+  io.on("connection", async (socket) => {
     // users
     if (io.connectedUsers[socket.user._id]) {
       io.connectedUsers[socket.user._id].sockets.push(socket);
@@ -17,7 +19,7 @@ module.exports.listen = server => {
       const newUser = {
         username: socket.user.username,
         name: socket.user.name,
-        sockets: [socket]
+        sockets: [socket],
       };
       io.connectedUsers[socket.user._id] = newUser;
     }
@@ -26,9 +28,10 @@ module.exports.listen = server => {
     // join groups
     const groups = await Chat.find({ members: socket.user._id }).select("_id");
     groups.forEach(({ _id }) => {
-      socket.join(_id);
+      const roomId = _id.toString();
+      socket.join(roomId);
       // emit online to group
-      io.to(_id).emit("member_online", socket.user._id);
+      io.to(roomId).emit("member_online", socket.user._id);
     });
 
     // disconnect
@@ -41,13 +44,20 @@ module.exports.listen = server => {
         delete io.connectedUsers[socket.user._id];
         // emit offline to groups
         groups.forEach(({ _id }) =>
-          io.to(_id).emit("member_offline", socket.user._id)
+          io.to(_id.toString()).emit("member_offline", socket.user._id)
         );
       }
 
       //_cl(socket, true);
     });
   });
+
+  // io.of("/").adapter.on("create-room", (room) => {
+  //   console.log(`room ${room} was created`);
+  // });
+  // io.of("/").adapter.on("join-room", (room, id) => {
+  //   console.log(`socket ${id} has joined room ${room}`);
+  // });
 
   function _cl(socket, dc = false) {
     console.log(

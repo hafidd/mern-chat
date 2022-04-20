@@ -1,7 +1,7 @@
 const Chat = require("../models/Chat");
 
-module.exports = chatListeners = function(io) {
-  io.on("connection", async socket => {
+module.exports = chatListeners = function (io) {
+  io.on("connection", async (socket) => {
     // on message
     socket.on("message", async ({ from, name, room, text }, fn) => {
       try {
@@ -14,9 +14,9 @@ module.exports = chatListeners = function(io) {
               : chat.members[0];
           // emit room to target if online
           if (io.connectedUsers[target]) {
-            io.connectedUsers[target].sockets.forEach(s => {
+            io.connectedUsers[target].sockets.forEach((s) => {
               io.to(s.id).emit("added", chat);
-              s.join(chat._id);
+              s.join(chat._id.toString());
             });
           }
         }
@@ -28,7 +28,9 @@ module.exports = chatListeners = function(io) {
         //   { $push: { messages: { name, text, from } } },
         //   { useFindAndModify: false }
         // );
-        socket.broadcast
+        // console.log({ from, text, name, room, sid: socket.id })
+        console.log(room);
+        socket
           .to(room)
           .emit("message", { from, text, name, room, sid: socket.id });
       } catch (err) {
@@ -38,8 +40,8 @@ module.exports = chatListeners = function(io) {
           message: {
             text: `${new Date().toLocaleString()}. pesan gagal dikirim`,
             name: "System",
-            room
-          }
+            room,
+          },
         });
       }
       return fn({ err: false, message: { from, text, name, room } });
