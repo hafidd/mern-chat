@@ -15,7 +15,7 @@ import {
   memberRemoved,
   memberOnline,
   memberOffline,
-  closeActiveChat
+  closeActiveChat,
 } from "../../actions/chatsActions";
 import { logout } from "../../actions/authActions";
 
@@ -43,16 +43,16 @@ export default function Chat() {
   const [modal, setModal] = useState(false);
   const [modalContent, setModalContent] = useState(null);
 
-  const activeChat = useSelector(state => state.activeChat);
+  const activeChat = useSelector((state) => state.activeChat);
   const [chatsHistory, setChatsHistory] = useState([]);
 
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (activeChat._id && chatsHistory.length === 0)
       window.history.pushState({}, "", "/");
-    window.onpopstate = e => {
+    window.onpopstate = (e) => {
       if (activeChat._id) dispatch(closeActiveChat());
     };
   }, [activeChat._id, chatsHistory, dispatch]);
@@ -60,12 +60,16 @@ export default function Chat() {
   useEffect(() => {
     if (io) {
       io.off();
+      //error
+      io.on("error", (err) => {
+        if (err === "authentication error") dispatch(logout());
+      });
       // new message
-      io.on("message", message => {
+      io.on("message", (message) => {
         dispatch(updateMessages(message));
       });
       // new group
-      io.on("added", group => {
+      io.on("added", (group) => {
         dispatch(added(group));
       });
       // new member
@@ -74,18 +78,18 @@ export default function Chat() {
           updateMessages({
             name: "System",
             text: `${user.name} (${user.username}) telah bergabung!`,
-            room: activeChat._id
+            room: activeChat._id,
           })
         );
         dispatch(newMember(user));
       });
       // memberleft
-      io.on("member_left", user => {
+      io.on("member_left", (user) => {
         dispatch(
           updateMessages({
             name: "System",
             text: `${user.name} (${user.username}) telah meninggalkan grup`,
-            room: activeChat._id
+            room: activeChat._id,
           })
         );
         dispatch(memberLeft(user._id));
@@ -96,20 +100,22 @@ export default function Chat() {
           updateMessages({
             name: "System",
             text: `${member.name} (${member.username}) telah dikeluarkan`,
-            room: activeChat._id
+            room: activeChat._id,
           })
         );
         if (user._id === member._id) dispatch(groupDeleted(gId));
         else dispatch(memberRemoved(member._id));
       });
       // group deleted
-      io.on("group_deleted", id => {
+      io.on("group_deleted", (id) => {
         setModal(false);
         dispatch(groupDeleted(id));
       });
       // member online-offline
-      io.on("member_online", id => {dispatch(memberOnline(id))});
-      io.on("member_offline", id => dispatch(memberOffline(id)));
+      io.on("member_online", (id) => {
+        dispatch(memberOnline(id));
+      });
+      io.on("member_offline", (id) => dispatch(memberOffline(id)));
     }
   }, [dispatch, activeChat._id, user._id]);
 
@@ -118,19 +124,19 @@ export default function Chat() {
     dispatch(loadChats());
   }, [dispatch]);
 
-  const setChat = chat => {
+  const setChat = (chat) => {
     dispatch(setActiveChat(chat));
     if (activeChat._id)
-      setChatsHistory(chatsHistory => [...chatsHistory, activeChat._id]);
+      setChatsHistory((chatsHistory) => [...chatsHistory, activeChat._id]);
     setCollapse(true);
   };
 
-  const showModal = content => {
+  const showModal = (content) => {
     setModalContent(content);
     setModal(true);
   };
 
-  const sendMessage = text => {
+  const sendMessage = (text) => {
     const { _id, name } = user;
     io.emit(
       "message",
@@ -144,13 +150,13 @@ export default function Chat() {
     );
   };
 
-  const submitNewGroup = groupName => {
+  const submitNewGroup = (groupName) => {
     dispatch(createGroup(groupName));
     setCollapse(true);
     setModal(false);
   };
 
-  const submitInvite = username => dispatch(invite(username, activeChat._id));
+  const submitInvite = (username) => dispatch(invite(username, activeChat._id));
 
   return (
     <div className="row p-0" id="chat">
@@ -183,8 +189,9 @@ export default function Chat() {
         </div>
       </div>
       <div
-        className={`col-md-7 col-lg-8 p-0 whitesmoke ${!collapse &&
-          "collapse"}`}
+        className={`col-md-7 col-lg-8 p-0 whitesmoke ${
+          !collapse && "collapse"
+        }`}
       >
         {activeChat._id ? (
           <Fragment>

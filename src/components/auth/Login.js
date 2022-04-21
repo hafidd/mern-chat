@@ -30,6 +30,9 @@ export default function Login() {
     <div className="row auth-container">
       <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2 card p-5">
         <Welcome />
+        {error.id && error.id === "LOGIN_FAIL" && (
+          <div className="alert alert-danger">{error.msg}</div>
+        )}
         <hr />
         <form onSubmit={(e) => submit(e)} className="form">
           <div className="form-group row">

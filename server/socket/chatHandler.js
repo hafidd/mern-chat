@@ -1,6 +1,8 @@
 const Chat = require("../models/Chat");
+const auth = require("../middleware/authSocket");
 
 module.exports = chatListeners = function (io) {
+  io.use(auth);
   io.on("connection", async (socket) => {
     // on message
     socket.on("message", async ({ from, name, room, text }, fn) => {
@@ -29,7 +31,6 @@ module.exports = chatListeners = function (io) {
         //   { useFindAndModify: false }
         // );
         // console.log({ from, text, name, room, sid: socket.id })
-        console.log(room);
         socket
           .to(room)
           .emit("message", { from, text, name, room, sid: socket.id });

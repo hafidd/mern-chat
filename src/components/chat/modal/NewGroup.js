@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
-export default function({ submitNewGroup }) {
+export default function ({ submitNewGroup }) {
   const [groupName, setGroupName] = useState("");
-  const loading = useSelector(state => state.chats.isLoading);
-  const error = useSelector(state => state.error);
+  const loading = useSelector((state) => state.chats.isLoading);
+  //  const error = useSelector(state => state.error);
 
   return (
     <div>
-      {JSON.stringify(error)}
       <form
         className="form"
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           if (groupName) submitNewGroup(groupName);
           setGroupName("");
@@ -22,7 +21,7 @@ export default function({ submitNewGroup }) {
           className="form-control mb-2"
           placeholder="Nama Group"
           value={groupName}
-          onChange={e => setGroupName(e.target.value)}
+          onChange={(e) => setGroupName(e.target.value)}
         />
         <button
           disabled={loading}

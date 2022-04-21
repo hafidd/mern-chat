@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { headers } from "../../helpers/jwt";
 
-export default function({ data }) {
+export default function ({ data }) {
   const [img, setImg] = useState("");
 
   useEffect(() => {
@@ -17,12 +17,12 @@ export default function({ data }) {
           : `/files/group/${data._id}`,
         { ...headers(), responseType: "arraybuffer", cancelToken: source.token }
       )
-      .then(res => {
+      .then((res) => {
         setImg(
           "data:;base64," + Buffer.from(res.data, "binary").toString("base64")
         );
       })
-      .catch();
+      .catch(() => {/* no img */});
     return () => source.cancel();
   }, [data.uId, data._id, data.type]);
 

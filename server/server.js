@@ -15,14 +15,7 @@ httpServer.listen(PORT, console.log(`listening on port ${PORT}`));
 
 // socketio
 const io = require("./socket/socket")(httpServer);
-require("./socket/chatListeners")(io);
-
-app.get("/testmit", async(req, res) => {
-  const us = await io.in("roomTest").fetchSockets()
-  console.log(us);
-
-  res.send("");
-});
+require("./socket/chatHandler")(io);
 
 // database
 const db = process.env.MONGODB_URI || "mongodb://localhost/mern-chat";

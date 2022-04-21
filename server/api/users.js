@@ -120,14 +120,6 @@ router.post("/contact", auth, async (req, res) => {
     console.log(err);
     return res.status(500).json({ msg: "Error" });
   }
-});
+}); 
 
-module.exports = router;
-
-(async () => {
-  // User.find().then(data => console.log(data));
-  // User.find((err, data) => {
-  //   console.log(data);
-  // });
-  // console.log(await User.find());
-})();
+module.exports = router; 

@@ -34,6 +34,7 @@ export const loadChats = () => dispatch => {
 
 export const setActiveChat = chat => dispatch => {
   // get full messages
+  console.log(headers())
   axios.get(`/api/chat/${chat._id}`, headers()).then(res => {
     //chat.messages = res.data.messages;
     dispatch({ type: SET_ACTIVE_CHAT, payload: res.data });

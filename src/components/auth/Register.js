@@ -15,22 +15,22 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
 
-  const error = useSelector(state => state.error);
-  const { isAuthenticated } = useSelector(state => state.auth);
+  const error = useSelector((state) => state.error);
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(clearErrors);
+    dispatch(clearErrors());
   }, [dispatch]);
 
-  const submit = e => {
+  const submit = (e) => {
     e.preventDefault();
     if (password !== password2)
       return dispatch(
         newErrors(
           {
             msg: "Validation Error",
-            errors: ["Konfirmasi password tidak sama"]
+            errors: ["Konfirmasi password tidak sama"],
           },
           "REGISTER_FAIL"
         )
@@ -43,8 +43,15 @@ export default function Register() {
     <div className="row auth-container p-5">
       <div className="col-lg-6 offset-lg-3 col-md-8 offset-md-2 card p-5">
         <Welcome />
-        <hr/>
-        <form onSubmit={e => submit(e)}>
+        {error.id && error.id === "REGISTER_FAIL" && (
+          <div className="alert alert-danger">
+            {error.errors.map((err) => (
+              <div key={err}>{err}</div>
+            ))}
+          </div>
+        )}
+        <hr />
+        <form onSubmit={(e) => submit(e)}>
           <div className="form-group row">
             <label className="col-form-label col-md-3" htmlFor="username">
               Username
@@ -55,7 +62,7 @@ export default function Register() {
                 type="text"
                 className="form-control"
                 value={username}
-                onChange={e => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
           </div>
@@ -69,7 +76,7 @@ export default function Register() {
                 type="email"
                 className="form-control"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -83,7 +90,7 @@ export default function Register() {
                 type="text"
                 className="form-control"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
           </div>
@@ -97,7 +104,7 @@ export default function Register() {
                 type="password"
                 className="form-control"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
@@ -111,7 +118,7 @@ export default function Register() {
                 type="password"
                 className="form-control"
                 value={password2}
-                onChange={e => setPassword2(e.target.value)}
+                onChange={(e) => setPassword2(e.target.value)}
               />
             </div>
           </div>
