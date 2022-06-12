@@ -29,3 +29,5 @@ yarn-error.log*
 
 #
 /server/credentials.json
+
+#package-lock.json
