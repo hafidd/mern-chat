@@ -10,7 +10,7 @@
 /coverage
 
 # production
-/build
+# /build
 
 # misc
 .env
@@ -30,4 +30,5 @@ yarn-error.log*
 #
 /server/credentials.json
 
-#package-lock.json
+package-lock.json
+pnpm-lock.yaml
