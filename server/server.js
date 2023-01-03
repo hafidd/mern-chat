@@ -8,7 +8,7 @@ const { createClient } = require("redis");
 (async () => {
   console.log("starting server")
   // redis adapter
-  const pubClient = await createClient({ url: "redis://localhost:6379" });
+  const pubClient = await createClient({ url: process.env.REDIS_URI });
   const subClient = await pubClient.duplicate();
   await pubClient.connect()
   await subClient.connect()
