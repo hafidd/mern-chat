@@ -1,12 +1,15 @@
 //const socketio = require("socket.io");
 const { Server } = require("socket.io");
+const { createAdapter } = require("@socket.io/redis-adapter");
 const auth = require("../middleware/authSocket");
 
-module.exports = (server) => {
+module.exports = (server, pubClient, subClient) => {
   //io = socketio.listen(server); < - socketio v2
-  const io = new Server(server, { allowEIO3: true });
+  const io = new Server(server, { allowEIO3: true, transports: ["websocket"] });
   // users
   io.connectedUsers = {};
+  // adapter
+  io.adapter(createAdapter(pubClient, subClient));
   // auth
   io.use(auth);
   // user connected
@@ -64,8 +67,7 @@ module.exports = (server) => {
       "-----------------------------------------------------------------------"
     );
     console.log(
-      `${socket.user.username} (${socket.id}) ${
-        dc ? "dis" : ""
+      `${socket.user.username} (${socket.id}) ${dc ? "dis" : ""
       }conected!\nconnected users:`
     );
     //console.log(io.connectedUsers);
